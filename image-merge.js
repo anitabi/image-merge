@@ -1,10 +1,8 @@
 const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 
 
 
-
-let captureImage;
-let captureImageURL = '7eyih3xg.jpg';
 
 const loadImageByURL = (url,onLoad)=>{
     const img = new Image();
@@ -14,31 +12,203 @@ const loadImageByURL = (url,onLoad)=>{
 };
 const loadCaptureImageURL = url=>{
     loadImageByURL(url,img=>{
-        captureImage = img;
+        config.captureImage = img;
         drawMergeImage();
     });
 };
+const loadCameraImageURL = url=>{
+    loadImageByURL(url,img=>{
+        config.cameraImage = img;
+        drawMergeImage();
+    });
+}
 
 
-loadCaptureImageURL(captureImageURL);
-
-const height = 1080;
+const config = {
+    captureImage: null,
+    cameraImage: null,
+    height: 1000,
+    margin: 0,
+};
 
 const drawMergeImage = ()=>{
-    if(!captureImage){
+    if(!config.captureImage){
         alert('截图图片不能为空');
         return;
     }
 
     // console.log(captureImage);
-    const { naturalWidth, naturalHeight } = captureImage;
+    const { naturalWidth, naturalHeight } = config.captureImage;
 
     const rate = naturalWidth / naturalHeight;
 
-    const outputWidth = height * rate;
-    const outputHeight = height * 2;
+    const captureWidth = config.height * rate;
+    const captureHeight = config.height;
+    const outputWidth = captureWidth + config.margin * 2;
+    const outputHeight = captureHeight * 2 + config.margin * 2;
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
+    canvas.style.aspectRatio = outputWidth / outputHeight;
 
-}
+    ctx.drawImage(
+        config.captureImage,
+        config.margin,
+        config.margin,
+        captureWidth,
+        captureHeight,
+    );
+    
+    if(!config.cameraImage) return;
+
+    const { 
+        naturalWidth : cameraImageNaturalWidth, 
+        naturalHeight: cameraImageNaturalHeight 
+    } = config.cameraImage;
+
+   
+
+    const imageRate = cameraImageNaturalWidth / cameraImageNaturalHeight;
+    let drawWidth, drawHeight, offsetX, offsetY;
+  
+    if (imageRate > rate) {
+        drawWidth = cameraImageNaturalHeight * rate;
+        drawHeight = cameraImageNaturalHeight;
+        offsetX = (cameraImageNaturalWidth - drawWidth) / 2;
+        offsetY = 0;
+    } else {
+        drawWidth = cameraImageNaturalWidth;
+        drawHeight = cameraImageNaturalWidth / rate;
+        offsetX = 0;
+        offsetY = (cameraImageNaturalHeight - drawHeight) / 2;
+    }
+  
+    ctx.drawImage(
+        config.cameraImage,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight,
+        config.margin,
+        config.margin + captureHeight,
+        captureWidth,
+        captureHeight
+    );
+};
+
+
+
+canvas.addEventListener('click',e=>{
+    if(e.button!=0) return;
+    console.log(e);
+
+    const { clientX, clientY } = e;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const top = clientY - rect.top;
+
+    const isCapture =  (rect.height / 2 - top) > 0;
+
+    console.log(isCapture);
+
+    chooseFile(file=>{
+        console.log(file);
+        getSrcByFile(file,src=>{
+            if(isCapture){
+                loadCaptureImageURL(src);
+            }else{
+                loadCameraImageURL(src);
+            }
+        });
+    })
+});
+
+
+const form = document.createElement('form');
+const input = document.createElement('input');
+input.type = 'file';
+input.accept = 'image/*';
+form.appendChild(input);
+const chooseFile = (onOver)=>{
+    form.reset();
+    input.click();
+    input.oninput = e=>{
+        const file = input.files[0];
+        if(!file) return;
+        onOver(file);
+    };
+};
+
+
+const getSrcByFile = (file,onOver)=>{
+    return onOver(URL.createObjectURL(file));
+    const reader = new FileReader();
+    reader.onload = e=>{
+        const src = reader.result;
+        onOver(src);
+    };
+    reader.readAsDataURL(file);
+};
+loadCaptureImageURL('7eyih3xg.jpg');
+
+
+
+const saveImage = ()=>{
+    const src = canvas.toDataURL('image/jpeg',0.9);
+    const unix = +new Date();
+    const uuid = unix.toString(36);
+    const fileName = `[神奇海螺][对比图生成器][${uuid}].jpg`;
+    console.log(fileName,src);
+    downloadBtn.download = fileName;
+    downloadBtn.href = src;
+};
+
+
+const downloadBtn = document.querySelector('.download-btn');
+downloadBtn.addEventListener('click',saveImage);
+
+
+
+
+// 阻止浏览器默认的文件拖拽行为
+document.addEventListener('dragover', e => {
+    e.preventDefault();
+});
+
+// 拖拽文件进入拖拽区域时的样式变化
+document.addEventListener('dragenter', e => {
+    document.body.style.backgroundColor = 'lightgray';
+});
+
+// 拖拽文件离开拖拽区域时的样式恢复
+document.addEventListener('dragleave', e => {
+    document.body.style.backgroundColor = '';
+});
+
+// 拖拽文件放下时的处理函数
+document.addEventListener('drop', e => {
+    e.preventDefault();
+    document.body.style.backgroundColor = '';
+
+    const file = e.dataTransfer.files[0];
+    if(!file) return;
+
+
+    const { clientX, clientY } = e;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const top = clientY - rect.top;
+
+    const isCapture =  (rect.height / 2 - top) > 0;
+
+
+    getSrcByFile(file, src => {
+        if (isCapture) {
+            loadCaptureImageURL(src);
+        } else {
+            loadCameraImageURL(src);
+        }
+    });
+});
