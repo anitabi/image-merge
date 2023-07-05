@@ -30,6 +30,7 @@ const config = {
     cameraImage: null,
     height: 1080,
     margin: 0,
+    background: '#EEE',
 };
 
 const htmlEl = document.documentElement;
@@ -71,7 +72,7 @@ const drawMergeImage = ()=>{
     canvas.height = outputHeight;
     outputEl.style.aspectRatio = outputWidth / outputHeight;
 
-    ctx.fillStyle = '#EEE';
+    ctx.fillStyle = config.background;
     ctx.fillRect(0,0,outputWidth,outputHeight);
 
     ctx.drawImage(
