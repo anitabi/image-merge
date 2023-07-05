@@ -51,6 +51,9 @@ const drawMergeImage = ()=>{
     canvas.height = outputHeight;
     canvas.style.aspectRatio = outputWidth / outputHeight;
 
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,outputWidth,outputHeight);
+    
     ctx.drawImage(
         config.captureImage,
         config.margin,
@@ -153,13 +156,22 @@ const getSrcByFile = (file,onOver)=>{
 loadCaptureImageURL('7eyih3xg.jpg');
 
 
+const getCanvasImageFile = onOver=>{
+    canvas.toBlob(onOver,'image/jpeg',0.9);
+};
 
-const saveImage = ()=>{
-    const src = canvas.toDataURL('image/jpeg',0.9);
+const getCanvasURL = ()=>{
+    return canvas.toDataURL('image/jpeg',0.9);
+};
+const getFileName = ()=>{
     const unix = +new Date();
     const uuid = unix.toString(36);
-    const fileName = `[神奇海螺][对比图生成器][${uuid}].jpg`;
-    console.log(fileName,src);
+    return `[神奇海螺][对比图生成器][${uuid}].jpg`;
+};
+
+const saveImage = ()=>{
+    const src = getCanvasURL();
+    const fileName = getFileName();
     downloadBtn.download = fileName;
     downloadBtn.href = src;
 };
@@ -169,7 +181,31 @@ const downloadBtn = document.querySelector('.download-btn');
 downloadBtn.addEventListener('click',saveImage);
 
 
+const shareBtn = document.querySelector('.share-btn');
 
+if(!navigator.share){
+    shareBtn.style.display = 'none';
+}
+shareBtn.addEventListener('click',async ()=>{
+    const fileName = getFileName();
+    getCanvasImageFile(async blob=>{
+
+        if(!navigator.canShare) return;
+        const file = new File([blob],fileName,{
+            type: 'image/jpeg'
+        });
+        console.log(file)
+        const files = [file];
+        const canShare = navigator.canShare({ files });
+        console.log(file,canShare);
+        if(!canShare) return;
+
+        navigator.share({
+            title: fileName,
+            files
+        });
+    })
+});
 
 // 阻止浏览器默认的文件拖拽行为
 document.addEventListener('dragover', e => {
