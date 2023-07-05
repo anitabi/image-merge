@@ -8,6 +8,7 @@ const ctx = canvas.getContext('2d');
 const outputImageEl = $('.output-image');
 
 const loadImageByURL = (url,onLoad)=>{
+    loadingStart();
     const img = new Image();
     img.onload = ()=>onLoad(img);;
     img.crossOrigin = 'anonymous';
