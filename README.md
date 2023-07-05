@@ -18,6 +18,10 @@
  - 分析截图自动调整照片滤镜
  - 调整分辨率
 
+## 不太可能会去做的功能
+ - 照片裁切选项
+ - 透视拉伸选项
+
 
 ## GitHub
 https://github.com/itorr/image-merge

@@ -1,6 +1,27 @@
 html{
     background:#999;
     font: 14px sans-serif;
+    &[data-loading="true"]{
+        cursor: wait;
+        & > *{
+            pointer-events: none;
+        }
+        &::after{
+            content: '生成中…';
+            position: fixed;
+            top: 0;
+            right: 0;
+            margin: 10px;
+            color:#FFF;
+            background:rgba(0,0,0,.5);
+            font-size: 12px;
+            line-height: 20px;
+            padding: 0 4px;
+            border-radius: 2px;
+            opacity: 0.5;
+        }
+    }
+   
 }
 body{
     max-width: 800px;
@@ -19,7 +40,6 @@ canvas{
     cursor: pointer;
     width: 100%;
 	aspect-ratio: 16 / 18;
-    background:#FFF;
 }
 .content-box{
     padding: 10px;

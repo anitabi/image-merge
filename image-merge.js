@@ -31,11 +31,22 @@ const config = {
     margin: 0,
 };
 
+const htmlEl = document.documentElement;
+const loadingStart = ()=>{
+    htmlEl.setAttribute('data-loading','true');
+};
+const loadingStop = ()=>{
+    htmlEl.setAttribute('data-loading','false');
+};
+
+
 const drawMergeImage = ()=>{
     if(!config.captureImage){
         alert('截图图片不能为空');
         return;
     }
+
+    loadingStart();
 
     // console.log(captureImage);
     const { naturalWidth, naturalHeight } = config.captureImage;
@@ -51,7 +62,7 @@ const drawMergeImage = ()=>{
     canvas.height = outputHeight;
     canvas.style.aspectRatio = outputWidth / outputHeight;
 
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#EEE';
     ctx.fillRect(0,0,outputWidth,outputHeight);
 
     ctx.drawImage(
@@ -62,7 +73,16 @@ const drawMergeImage = ()=>{
         captureHeight,
     );
     
-    if(!config.cameraImage) return;
+    if(!config.cameraImage){
+        ctx.font = '48px sans-serif';
+        ctx.fillStyle = '#999';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('点选或拖拽上传照片',outputWidth / 2,outputHeight * 0.75);
+
+        loadingStop();
+        return;
+    }
 
     const { 
         naturalWidth : cameraImageNaturalWidth, 
@@ -97,6 +117,8 @@ const drawMergeImage = ()=>{
         captureWidth,
         captureHeight
     );
+
+    loadingStop();
 };
 
 
