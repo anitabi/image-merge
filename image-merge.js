@@ -66,7 +66,7 @@ const drawMergeImage = ()=>{
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
-    canvas.style.aspectRatio = outputWidth / outputHeight;
+    outputImageEl.style.aspectRatio = outputWidth / outputHeight;
 
     ctx.fillStyle = '#EEE';
     ctx.fillRect(0,0,outputWidth,outputHeight);
@@ -78,6 +78,14 @@ const drawMergeImage = ()=>{
         captureWidth,
         captureHeight,
     );
+
+
+    ctx.font = '18px sans-serif';
+    ctx.fillStyle = 'rgba(148, 128, 128, 0.3)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('巡礼对比图生成器', 10, captureHeight - 10 );
+
     
     if(!config.cameraImage){
         ctx.font = '48px sans-serif';
