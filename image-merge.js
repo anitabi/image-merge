@@ -53,7 +53,7 @@ const drawMergeImage = ()=>{
 
     ctx.fillStyle = '#fff';
     ctx.fillRect(0,0,outputWidth,outputHeight);
-    
+
     ctx.drawImage(
         config.captureImage,
         config.margin,
@@ -153,7 +153,10 @@ const getSrcByFile = (file,onOver)=>{
     };
     reader.readAsDataURL(file);
 };
-loadCaptureImageURL('7eyih3xg.jpg');
+
+
+const urlParams = new URLSearchParams(window.location.search)
+loadCaptureImageURL(urlParams.get('url') || '7eyih3xg.jpg');
 
 
 const getCanvasImageFile = onOver=>{
