@@ -1,8 +1,9 @@
-const canvas = document.querySelector('canvas');
+// const canvas = document.querySelector('canvas');
+const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 
 
-
+const outputImageEl = document.querySelector('.output-image');
 
 const loadImageByURL = (url,onLoad)=>{
     const img = new Image();
@@ -39,6 +40,11 @@ const loadingStop = ()=>{
     htmlEl.setAttribute('data-loading','false');
 };
 
+// 生成图片链接
+const generateImage = ()=>{
+    const url = getCanvasURL();
+    outputImageEl.src = url;
+}
 
 const drawMergeImage = ()=>{
     if(!config.captureImage){
@@ -81,6 +87,7 @@ const drawMergeImage = ()=>{
         ctx.fillText('点选或拖拽上传照片',outputWidth / 2,outputHeight * 0.75);
 
         loadingStop();
+        generateImage();
         return;
     }
 
@@ -119,17 +126,18 @@ const drawMergeImage = ()=>{
     );
 
     loadingStop();
+    generateImage();
 };
 
 
 
-canvas.addEventListener('click',e=>{
+outputImageEl.addEventListener('click',e=>{
     if(e.button!=0) return;
     console.log(e);
 
     const { clientX, clientY } = e;
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = outputImageEl.getBoundingClientRect();
 
     const top = clientY - rect.top;
 
