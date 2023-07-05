@@ -28,7 +28,7 @@ const loadCameraImageURL = url=>{
 const config = {
     captureImage: null,
     cameraImage: null,
-    height: 1000,
+    height: 1080,
     margin: 0,
 };
 
@@ -65,7 +65,7 @@ const drawMergeImage = ()=>{
     const captureWidth = config.height * rate;
     const captureHeight = config.height;
     const outputWidth = captureWidth + config.margin * 2;
-    const outputHeight = captureHeight * 2 + config.margin * 2;
+    const outputHeight = captureHeight * 2 + config.margin * 3;
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
@@ -87,7 +87,11 @@ const drawMergeImage = ()=>{
     ctx.fillStyle = 'rgba(148, 128, 128, 0.3)';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('巡礼对比图生成器', 10, captureHeight - 10 );
+    ctx.fillText(
+        '巡礼对比图生成器 lab.magiconch.com/image-merge/', 
+        config.margin + 12, 
+        captureHeight + config.margin - 10 
+    );
 
     
     if(!config.cameraImage){
@@ -96,7 +100,7 @@ const drawMergeImage = ()=>{
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('点选或拖拽上传照片',outputWidth / 2,outputHeight * 0.75);
-
+        
         loadingStop();
         generateImage();
         return;
@@ -131,7 +135,7 @@ const drawMergeImage = ()=>{
         drawWidth,
         drawHeight,
         config.margin,
-        config.margin + captureHeight,
+        config.margin * 2 + captureHeight,
         captureWidth,
         captureHeight
     );
