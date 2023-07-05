@@ -46,6 +46,9 @@ const generateImage = ()=>{
     outputImageEl.src = url;
 }
 
+
+const outputEl = outputImageEl; // canvas
+
 const drawMergeImage = ()=>{
     if(!config.captureImage){
         alert('截图图片不能为空');
@@ -66,7 +69,7 @@ const drawMergeImage = ()=>{
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
-    outputImageEl.style.aspectRatio = outputWidth / outputHeight;
+    outputEl.style.aspectRatio = outputWidth / outputHeight;
 
     ctx.fillStyle = '#EEE';
     ctx.fillRect(0,0,outputWidth,outputHeight);
@@ -139,13 +142,13 @@ const drawMergeImage = ()=>{
 
 
 
-outputImageEl.addEventListener('click',e=>{
+outputEl.addEventListener('click',e=>{
     if(e.button!=0) return;
     console.log(e);
 
     const { clientX, clientY } = e;
 
-    const rect = outputImageEl.getBoundingClientRect();
+    const rect = outputEl.getBoundingClientRect();
 
     const top = clientY - rect.top;
 
