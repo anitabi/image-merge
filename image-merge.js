@@ -1,9 +1,11 @@
-// const canvas = document.querySelector('canvas');
+// const canvas = $('canvas');
+
+const $ = document.querySelector.bind(document);
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 
 
-const outputImageEl = document.querySelector('.output-image');
+const outputImageEl = $('.output-image');
 
 const loadImageByURL = (url,onLoad)=>{
     const img = new Image();
@@ -174,6 +176,30 @@ outputEl.addEventListener('click',e=>{
 });
 
 
+const throttle = (fn,wait)=>{
+    let timer = null;
+    return (...args)=>{
+        if(timer) return;
+        timer = setTimeout(()=>{
+            fn(...args);
+            timer = null;
+        }
+        ,wait);
+    };
+};
+
+const inputRangeMarginEl = $('.input-range-margin');
+const inputRangeValueEl = $('.config-margin-value');
+inputRangeMarginEl.addEventListener('input',throttle(e=>{
+    const v = +e.target.value;
+    config.margin = v;
+    inputRangeValueEl.innerText = v;
+
+    drawMergeImage();
+},300));
+
+
+
 const form = document.createElement('form');
 const input = document.createElement('input');
 input.type = 'file';
@@ -226,11 +252,11 @@ const saveImage = ()=>{
 };
 
 
-const downloadBtn = document.querySelector('.download-btn');
+const downloadBtn = $('.download-btn');
 downloadBtn.addEventListener('click',saveImage);
 
 
-const shareBtn = document.querySelector('.share-btn');
+const shareBtn = $('.share-btn');
 
 if(!navigator.share){
     shareBtn.style.display = 'none';

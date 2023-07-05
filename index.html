@@ -12,15 +12,22 @@
         <h1>巡礼对比图生成器</h1>
     </header>
     <img class="output-image">
-    <div class="content-box">
-        <p data-client="pc">点击或拖拽图片到对应区域上传换图</p>
-        <p data-client="phone">点击对应区域换图，长按图片也可存图</p>
+    <div class="config-box">
+        <div class="label-box range-box" style="padding: 10px 0px 4px;">
+            <div class="head">
+                <b>边框</b> 
+                <span class="config-margin-value">0</span>
+            </div> 
+            <input type="range" min="0" max="40" step="20" value="0" class="input-range-margin">
+        </div>
     </div>
     <div class="output-box">
         <a class="ui-btn download-btn" target="_blank">保存对比图</a>
         <a class="ui-btn share-btn" target="_blank">分享图片</a>
     </div>
     <div class="content-box">
+        <p data-client="pc">点击或拖拽图片到对应区域上传换图</p>
+        <p data-client="phone">点击对应区域换图，长按图片也可存图</p>
         <p>
             在地图中寻找圣地
             <a href="https://anitabi.cn/map" target="_blank">https://anitabi.cn</a>
