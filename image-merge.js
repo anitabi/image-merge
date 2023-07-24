@@ -10,7 +10,7 @@ const outputImageEl = $('.output-image');
 const loadImageByURL = (url,onLoad)=>{
     loadingStart();
     const img = new Image();
-    img.onload = ()=>onLoad(img);;
+    img.onload = ()=>onLoad(img);
     img.crossOrigin = 'anonymous';
     img.src = url;
 };
@@ -33,7 +33,7 @@ const config = {
     cameraImage: null,
     height: 1080,
     margin: 0,
-    background: '#EEE',
+    background: '#EEEEEE',
 };
 
 const htmlEl = document.documentElement;
@@ -92,34 +92,34 @@ const drawMergeImage = ()=>{
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
     ctx.fillText(
-        '巡礼对比图生成器 lab.magiconch.com/image-merge/', 
-        config.margin + 12, 
-        captureHeight + config.margin - 10 
+        '巡礼对比图生成器 lab.magiconch.com/image-merge/',
+        config.margin + 12,
+        captureHeight + config.margin - 10
     );
 
-    
+
     if(!config.cameraImage){
         ctx.font = '48px sans-serif';
         ctx.fillStyle = '#999';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('点选或拖拽上传照片',outputWidth / 2,outputHeight * 0.75);
-        
+
         loadingStop();
         generateImage();
         return;
     }
 
-    const { 
-        naturalWidth : cameraImageNaturalWidth, 
-        naturalHeight: cameraImageNaturalHeight 
+    const {
+        naturalWidth : cameraImageNaturalWidth,
+        naturalHeight: cameraImageNaturalHeight
     } = config.cameraImage;
 
-   
+
 
     const imageRate = cameraImageNaturalWidth / cameraImageNaturalHeight;
     let drawWidth, drawHeight, offsetX, offsetY;
-  
+
     if (imageRate > rate) {
         drawWidth = cameraImageNaturalHeight * rate;
         drawHeight = cameraImageNaturalHeight;
@@ -131,7 +131,7 @@ const drawMergeImage = ()=>{
         offsetX = 0;
         offsetY = (cameraImageNaturalHeight - drawHeight) / 2;
     }
-  
+
     ctx.drawImage(
         config.cameraImage,
         offsetX,
@@ -198,6 +198,16 @@ inputRangeMarginEl.addEventListener('input',throttle(e=>{
 
     drawMergeImage();
 },300));
+
+const inputBGColorEl = $('.input-background-color');
+const inputColorValueEl = $('.config-background-color');
+inputBGColorEl.addEventListener('input',throttle(e=>{
+    const v = e.target.value;
+    config.background = v;
+    inputColorValueEl.innerText = v;
+    drawMergeImage();
+},10));
+
 
 
 
