@@ -202,10 +202,12 @@ outputEl.addEventListener('click',e=>{
     const rect = outputEl.getBoundingClientRect();
 
     let isCapture = false;
-    if(config.direction === 'vertical'){
-        isCapture = (rect.height / 2 - clientY) > 0;
+    if(config.direction === 'vertical'){ // 竖直方向
+        const top = clientY - rect.top;
+        isCapture = (rect.height / 2 - top) > 0;
     }else{
-        isCapture = (rect.width / 2 - clientX) > 0;
+        const left = clientX - rect.left;
+        isCapture = (rect.width / 2 - left) > 0;
     }
     // const top = clientY - rect.top;
     // const isCapture =  (rect.height / 2 - top) > 0;
