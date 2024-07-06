@@ -209,10 +209,6 @@ outputEl.addEventListener('click',e=>{
         const left = clientX - rect.left;
         isCapture = (rect.width / 2 - left) > 0;
     }
-    // const top = clientY - rect.top;
-    // const isCapture =  (rect.height / 2 - top) > 0;
-
-    console.log(isCapture);
 
     chooseFile(file=>{
         console.log(file);
@@ -369,12 +365,18 @@ document.addEventListener('drop', e => {
 
     const { clientX, clientY } = e;
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = outputEl.getBoundingClientRect();
+    
+    let isCapture = false;
+    if(config.direction === 'vertical'){ // 竖直方向
+        const top = clientY - rect.top;
+        isCapture = (rect.height / 2 - top) > 0;
+    } else {
+        const left = clientX - rect.left;
+        isCapture = (rect.width / 2 - left) > 0;
+    }
 
-    const top = clientY - rect.top;
-
-    const isCapture =  (rect.height / 2 - top) > 0;
-
+    console.log(clientY,rect,isCapture)
 
     getSrcByFile(file, src => {
         if (isCapture) {
