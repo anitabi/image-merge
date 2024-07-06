@@ -17,7 +17,13 @@ const loadImageByURL = (url,onLoad)=>{
 const loadCaptureImageURL = url=>{
     loadImageByURL(url,img=>{
         config.captureImage = img;
-        drawMergeImage();
+
+        // 判断截图图片的宽高比，以确定合成图片的方向
+        const { naturalWidth, naturalHeight } = img;
+        const rate = naturalWidth / naturalHeight;
+        setDirection(rate < 1 ? 'horizontal' : 'vertical');
+        
+        // drawMergeImage();
     });
 };
 const loadCameraImageURL = url=>{
@@ -33,6 +39,7 @@ const config = {
     cameraImage: null,
     height: 1080,
     margin: 0,
+    direction: 'vertical', // vertical | horizontal
     background: '#EEEEEE',
 };
 
@@ -66,10 +73,21 @@ const drawMergeImage = ()=>{
 
     const rate = naturalWidth / naturalHeight;
 
-    const captureWidth = config.height * rate;
-    const captureHeight = config.height;
-    const outputWidth = captureWidth + config.margin * 2;
-    const outputHeight = captureHeight * 2 + config.margin * 3;
+    const { direction } = config;
+
+    let captureWidth, captureHeight, outputWidth, outputHeight;
+
+    if (direction === 'vertical') {
+        captureWidth = config.height * rate;
+        captureHeight = config.height;
+        outputWidth = captureWidth + config.margin * 2;
+        outputHeight = captureHeight * 2 + config.margin * 3;
+    } else {
+        captureWidth = config.height;
+        captureHeight = config.height / rate;
+        outputWidth = captureWidth * 2 + config.margin * 3;
+        outputHeight = captureHeight + config.margin * 2;
+    }
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
@@ -77,6 +95,8 @@ const drawMergeImage = ()=>{
 
     ctx.fillStyle = config.background;
     ctx.fillRect(0,0,outputWidth,outputHeight);
+
+    // 绘制截图
 
     ctx.drawImage(
         config.captureImage,
@@ -103,7 +123,21 @@ const drawMergeImage = ()=>{
         ctx.fillStyle = '#999';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('点选或拖拽上传照片',outputWidth / 2,outputHeight * 0.75);
+
+        let drawTextLeft, drawTextTop;
+        if (direction === 'vertical') {
+            drawTextLeft = outputWidth / 2;
+            drawTextTop = outputHeight * 0.75;
+        } else {
+            drawTextLeft = outputWidth * 0.75;
+            drawTextTop = outputHeight / 2;
+        }
+        
+        ctx.fillText(
+            '点选或拖拽上传照片',
+            drawTextLeft,
+            drawTextTop
+        );
 
         loadingStop();
         generateImage();
@@ -132,14 +166,23 @@ const drawMergeImage = ()=>{
         offsetY = (cameraImageNaturalHeight - drawHeight) / 2;
     }
 
+    let drawImageLeft, drawImageTop;
+    if (direction === 'vertical') {
+        drawImageLeft = config.margin;
+        drawImageTop = captureHeight + config.margin * 2;
+    } else {
+        drawImageLeft = captureWidth + config.margin * 2;
+        drawImageTop = config.margin;
+    }
+
     ctx.drawImage(
         config.cameraImage,
         offsetX,
         offsetY,
         drawWidth,
         drawHeight,
-        config.margin,
-        config.margin * 2 + captureHeight,
+        drawImageLeft,
+        drawImageTop,
         captureWidth,
         captureHeight
     );
@@ -158,9 +201,14 @@ outputEl.addEventListener('click',e=>{
 
     const rect = outputEl.getBoundingClientRect();
 
-    const top = clientY - rect.top;
-
-    const isCapture =  (rect.height / 2 - top) > 0;
+    let isCapture = false;
+    if(config.direction === 'vertical'){
+        isCapture = (rect.height / 2 - clientY) > 0;
+    }else{
+        isCapture = (rect.width / 2 - clientX) > 0;
+    }
+    // const top = clientY - rect.top;
+    // const isCapture =  (rect.height / 2 - top) > 0;
 
     console.log(isCapture);
 
@@ -334,3 +382,24 @@ document.addEventListener('drop', e => {
         }
     });
 });
+
+
+
+const updateDirection = ()=>{
+    const tabEls = document.querySelectorAll('.ui-tab[v-model="config.direction"]');
+    tabEls.forEach(el=>{
+        const value = el.getAttribute('value');
+        el.setAttribute('data-checked',value === config.direction);
+    });
+};
+updateDirection();
+const setDirection = value=>{
+    config.direction = value;
+    updateDirection();
+    drawMergeImage();
+}
+
+const setDirectionByEl = el=>{
+    const value = el.getAttribute('value');
+    setDirection(value);
+}

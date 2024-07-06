@@ -27,6 +27,18 @@
             </div>
             <input type="color" value="#EEEEEE" class="input-background-color">
         </div>
+        <div class="label-box" style="padding: 10px 0 4px;">
+            <div class="ui-tabs">
+                <a class="ui-tab" 
+                    v-model="config.direction"
+                    value="vertical"
+                    onclick="setDirectionByEl(this)">纵向</a>
+                <a class="ui-tab"
+                v-model="config.direction"
+                value="horizontal"
+                onclick="setDirectionByEl(this)">横向</a>
+            </div>
+        </div>
     </div>
     <div class="output-box">
         <a class="ui-btn download-btn" target="_blank">保存对比图</a>
