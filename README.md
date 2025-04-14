@@ -11,7 +11,8 @@
 ## 待做功能
 - [x] 从 Anitabi.cn 导入截图 (2023-07-05 做了！)
 - [x] 底色选项 (2023-07-24 做了！)
-- [ ] 边框选项
+- [x] 边框选项
+- [x] 横竖自动切换
 - [ ] 照片截图顺序选项
 - [ ] 文字水印选项
 - [ ] 照片滤镜调整选项
@@ -25,3 +26,14 @@
 
 ## GitHub
 https://github.com/itorr/image-merge
+
+
+## 引用了
+ - EXIF.js
+
+
+## 上线
+```
+less style.less style.css
+curl https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js -o exif.2.3.0.min.js
+```

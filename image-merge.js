@@ -274,6 +274,7 @@ const chooseFile = (onOver)=>{
 
 
 const getSrcByFile = (file,onOver)=>{
+    tryEXIF(file);
     return onOver(URL.createObjectURL(file));
     const reader = new FileReader();
     reader.onload = e=>{
@@ -286,6 +287,144 @@ const getSrcByFile = (file,onOver)=>{
 
 const urlParams = new URLSearchParams(window.location.search)
 loadCaptureImageURL(urlParams.get('url') || '7eyih3xg.jpg');
+
+
+// 来自动画巡礼的来源可能会带这些参数用于地标纠正统计
+const pid = urlParams.get('pid');
+const bid = urlParams.get('bid');
+const g = urlParams.get('g');
+
+
+const loadScript = (src,resolve)=>{
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    document.head.appendChild(script);
+}
+
+const getDateFromEXIF = (exif,EXIF)=>{
+    // 获取照片的拍摄时间
+    const date = (
+        EXIF.getTag(exif, 'DateTime') ||
+        EXIF.getTag(exif, 'DateTimeOriginal') ||
+        EXIF.getTag(exif, 'DateTimeDigitized')
+    );
+    if(!date) return;
+
+    return date;
+    // 获取时间戳失败
+}
+
+const getSecondFromEXIF = (exif,EXIF)=>{
+    // 把 getDateFromEXIF 的结果转换成秒数
+    const date = getDateFromEXIF(exif,EXIF);
+    if(!date) return -1;
+
+    const match = date.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
+    if(!match) return -1;
+    const year = +match[1];
+    const month = +match[2];
+    const day = +match[3];
+    const hour = +match[4];
+    const minute = +match[5];
+    const second = +match[6];
+
+    const s = year * 365 * 24 * 60 * 60 +
+        month * 30 * 24 * 60 * 60 +
+        day * 24 * 60 * 60 +
+        hour * 60 * 60 +
+        minute * 60 +
+        second;
+    return s;
+}
+
+const loadEXIFJS = (cb)=>{
+    if(window.EXIF) return cb(window.EXIF);
+    loadScript('exif.2.3.0.min.js',()=>{
+        cb(window.EXIF);
+    });
+}
+
+
+// GPS 精度1m
+const GPS_ACCURACY = 100000;
+
+const tryEXIF = file=>{
+    if(!pid) return;
+    if(!bid) return;
+    if(!g) return;
+
+    // 经纬度
+    const xy = g.split(',').map(v=>+v);
+
+    loadEXIFJS(EXIF=>{
+        if(!EXIF) return;
+
+        EXIF.getData(file, function() {
+
+            // const exifs = EXIF.getAllTags(this);
+            // console.log('exifs',exifs);
+
+            const lat = EXIF.getTag(this, 'GPSLatitude');
+            const lng = EXIF.getTag(this, 'GPSLongitude');
+
+            if(!lat || !lng) return;
+
+            const latRef = EXIF.getTag(this, 'GPSLatitudeRef');
+            const lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
+
+            if(!latRef || !lngRef) return;
+
+            const latNum = lat[0] + lat[1] / 60 + lat[2] / 3600;
+            const lngNum = lng[0] + lng[1] / 60 + lng[2] / 3600;
+
+            if(latRef === 'S') latNum *= -1;
+            if(lngRef === 'W') lngNum *= -1;
+
+            const latNumStr = Math.round(latNum * GPS_ACCURACY) / GPS_ACCURACY;
+            const lngNumStr = Math.round(lngNum * GPS_ACCURACY) / GPS_ACCURACY;
+
+            // 计算地标距离
+            const distance = Math.sqrt(Math.pow(latNum - xy[0], 2) + Math.pow(lngNum - xy[1], 2));
+
+            // 转换成米
+            const distanceInMeters = Math.round(distance * 111139); // 1度约等于111.39km
+
+
+            const second = getSecondFromEXIF(this,EXIF);
+
+            const data = [
+                bid,
+                pid,
+                latNumStr,
+                lngNumStr,
+                distanceInMeters,
+                second,
+            ];
+
+
+            
+
+        });
+    });
+
+}
+
+
+// 提交地标GPS修正记录
+const subPointGPS = (data)=>{
+    submitLog('pg',data);
+}
+const submitLog = (name,data)=>{
+    const url = `https://anitabi.cn/api/log/${name}`;
+    const body = JSON.stringify(data);
+
+    const x = new XMLHttpRequest();
+    x.open('POST', url, true);
+    x.withCredentials = true;
+    x.setRequestHeader('Content-Type', 'application/json');
+    x.send(body);
+}
 
 
 const getCanvasImageFile = onOver=>{
@@ -307,7 +446,6 @@ const saveImage = ()=>{
     downloadBtn.download = fileName;
     downloadBtn.href = src;
 };
-
 
 const downloadBtn = $('.download-btn');
 downloadBtn.addEventListener('click',saveImage);
