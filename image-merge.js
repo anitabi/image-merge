@@ -403,7 +403,7 @@ const tryEXIF = file=>{
             ];
 
 
-            
+            subPointGPS(data);
 
         });
     });
@@ -415,15 +415,11 @@ const tryEXIF = file=>{
 const subPointGPS = (data)=>{
     submitLog('pg',data);
 }
-const submitLog = (name,data)=>{
-    const url = `https://anitabi.cn/api/log/${name}`;
-    const body = JSON.stringify(data);
 
-    const x = new XMLHttpRequest();
-    x.open('POST', url, true);
-    x.withCredentials = true;
-    x.setRequestHeader('Content-Type', 'application/json');
-    x.send(body);
+const submitLog = (name,data)=>{
+    const body = JSON.stringify(data);
+    const url = `https://hk.anitabi.cn/api/log/${name}?data=${encodeURIComponent(body)}`;
+    (new Image()).src = url;
 }
 
 
