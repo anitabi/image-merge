@@ -378,6 +378,8 @@ const tryEXIF = file=>{
             const latNum = lat[0] + lat[1] / 60 + lat[2] / 3600;
             const lngNum = lng[0] + lng[1] / 60 + lng[2] / 3600;
 
+            if(!latNum || !lngNum) return;
+
             if(latRef === 'S') latNum *= -1;
             if(lngRef === 'W') lngNum *= -1;
 
