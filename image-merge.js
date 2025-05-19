@@ -275,7 +275,7 @@ const chooseFile = (onOver)=>{
 
 const getSrcByFile = (file,onOver)=>{
     tryEXIF(file);
-    
+
     if(['image/heic','image/heif'].includes(file.type)){
         alert('HEIC/HEIF 格式的图片暂不支持，请转换为 JPG 格式');
         return;
@@ -389,7 +389,7 @@ const tryEXIF = file=>{
             const s = Math.floor( +exif.CreateDate / 1000 );
             
             // 获取拍摄方向
-            const direction = exif.GPSImgDirection || -1;
+            const direction = Math.round(exif.GPSImgDirection || -1);
 
             const data = [
                 bid,
