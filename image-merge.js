@@ -391,6 +391,10 @@ const tryEXIF = file=>{
             // 获取拍摄方向
             const direction = Math.round(exif.GPSImgDirection || -1);
 
+
+            // 获取拍摄焦距
+            const mm = exif.FocalLengthIn35mmFormat || -1;
+
             const data = [
                 bid,
                 pid,
@@ -399,6 +403,7 @@ const tryEXIF = file=>{
                 distanceInMeters,
                 s,
                 direction,
+                mm,
             ];
             subPointGPS(data);
         })
