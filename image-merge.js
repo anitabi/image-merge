@@ -338,6 +338,11 @@ const getSecondFromEXIF = (exif,EXIF)=>{
     return s;
 }
 
+const getRFromEXIF = (exif,EXIF)=>{
+    // 获取照片的拍摄方向 海拔高度 仰角
+    return Number(EXIF.getTag(exif, 'GPSImgDirection')) || -1;
+}
+
 const loadEXIFJS = (cb)=>{
     if(window.EXIF) return cb(window.EXIF);
     loadScript('exif.2.3.0.min.js',()=>{
@@ -362,8 +367,9 @@ const tryEXIF = file=>{
 
         EXIF.getData(file, function() {
 
-            // const exifs = EXIF.getAllTags(this);
-            // console.log('exifs',exifs);
+            const exifs = EXIF.getAllTags(this);
+            console.log('exifs',exifs);
+            console.log('exifs',Object.keys(exifs));
 
             const lat = EXIF.getTag(this, 'GPSLatitude');
             const lng = EXIF.getTag(this, 'GPSLongitude');
@@ -395,6 +401,9 @@ const tryEXIF = file=>{
 
             const second = getSecondFromEXIF(this,EXIF);
 
+            // 获取拍摄方向
+            const direction = getRFromEXIF(this,EXIF);
+
             const data = [
                 bid,
                 pid,
@@ -402,6 +411,7 @@ const tryEXIF = file=>{
                 lngNumStr,
                 distanceInMeters,
                 second,
+                direction,
             ];
 
 
