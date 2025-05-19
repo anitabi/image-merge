@@ -275,6 +275,12 @@ const chooseFile = (onOver)=>{
 
 const getSrcByFile = (file,onOver)=>{
     tryEXIF(file);
+    
+    if(['image/heic','image/heif'].includes(file.type)){
+        alert('HEIC/HEIF 格式的图片暂不支持，请转换为 JPG 格式');
+        return;
+    }
+    
     return onOver(URL.createObjectURL(file));
     const reader = new FileReader();
     reader.onload = e=>{
@@ -344,9 +350,9 @@ const getRFromEXIF = (exif,EXIF)=>{
 }
 
 const loadEXIFJS = (cb)=>{
-    if(window.EXIF) return cb(window.EXIF);
-    loadScript('exif.2.3.0.min.js',()=>{
-        cb(window.EXIF);
+    if(window.exifr) return cb(window.exifr);
+    loadScript('exifr.7.1.3.lite.legacy.umd.min.js',()=>{
+        cb(window.exifr);
     });
 }
 
@@ -362,62 +368,40 @@ const tryEXIF = file=>{
     // 经纬度
     const xy = g.split(',').map(v=>+v);
 
-    loadEXIFJS(EXIF=>{
-        if(!EXIF) return;
+    loadEXIFJS(exifr=>{
+        if(!exifr) return;
 
-        EXIF.getData(file, function() {
-
-            const exifs = EXIF.getAllTags(this);
-            console.log('exifs',exifs);
-            console.log('exifs',Object.keys(exifs));
-
-            const lat = EXIF.getTag(this, 'GPSLatitude');
-            const lng = EXIF.getTag(this, 'GPSLongitude');
+        exifr.parse(file).then((exif) => {
+            console.log('exif',exif);
+            if(!exif) return;
+            const lat = Math.round(exif.latitude * GPS_ACCURACY) / GPS_ACCURACY;
+            const lng = Math.round(exif.longitude * GPS_ACCURACY) / GPS_ACCURACY;
 
             if(!lat || !lng) return;
 
-            const latRef = EXIF.getTag(this, 'GPSLatitudeRef');
-            const lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
-
-            if(!latRef || !lngRef) return;
-
-            const latNum = lat[0] + lat[1] / 60 + lat[2] / 3600;
-            const lngNum = lng[0] + lng[1] / 60 + lng[2] / 3600;
-
-            if(!latNum || !lngNum) return;
-
-            if(latRef === 'S') latNum *= -1;
-            if(lngRef === 'W') lngNum *= -1;
-
-            const latNumStr = Math.round(latNum * GPS_ACCURACY) / GPS_ACCURACY;
-            const lngNumStr = Math.round(lngNum * GPS_ACCURACY) / GPS_ACCURACY;
-
             // 计算地标距离
-            const distance = Math.sqrt(Math.pow(latNum - xy[0], 2) + Math.pow(lngNum - xy[1], 2));
-
+            const distance = Math.sqrt(Math.pow(lat - xy[0], 2) + Math.pow(lng - xy[1], 2));
             // 转换成米
             const distanceInMeters = Math.round(distance * 111139); // 1度约等于111.39km
 
 
-            const second = getSecondFromEXIF(this,EXIF);
-
+            // 获取拍摄时间
+            const s = Math.floor( +exif.CreateDate / 1000 );
+            
             // 获取拍摄方向
-            const direction = getRFromEXIF(this,EXIF);
+            const direction = exif.GPSImgDirection || -1;
 
             const data = [
                 bid,
                 pid,
-                latNumStr,
-                lngNumStr,
+                lat,
+                lng,
                 distanceInMeters,
-                second,
+                s,
                 direction,
             ];
-
-
             subPointGPS(data);
-
-        });
+        })
     });
 
 }
